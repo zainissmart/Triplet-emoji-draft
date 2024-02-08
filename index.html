@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>FIW Video Triplets</title>  <!-- CHANGE THIS (title) -->
+      
+    <script src="https://unpkg.com/jspsych@7.2.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-select@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-likert@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-call-function@1.1.0"></script>
+    <script src="jquery-3.5.1.js"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.0"></script>
+    <link href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/@jspsych/plugin-video-button-response@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-video-keyboard-response@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+
+
+
+      
+  </head>
+  <body></body>
+    
+  <script>
+      
+      
+
+    var jsPsych = initJsPsych({
+        show_progress_bar:false,
+        on_data_update: function(){
+            jsPsych.data.addProperties({worker_id: urlvar.workerId});
+            //saveData(file, jsPsych.data.get().csv());
+            save_data();
+        },
+        on_finish: function(){
+            jsPsych.data.addProperties({worker_id: urlvar.workerId});
+            //saveData(file, jsPsych.data.get().csv());
+            save_data();
+
+        },
+        max_load_time: 120000
+    });
+
+      var secret_code  = jsPsych.randomization.randomID(8);
+      var file_name = "fiw_triplets_" + secret_code; // CHANGE THIS (file name)
+
+    // this is to save to OSF using DataPipe
+      var save_data = {
+        type: jsPsychPipe,
+        action: "save",
+        experiment_id: "7ukPnltATLAH",
+        filename: file_name,
+        data_string: ()=>jsPsych.data.get().csv()
+      };
+
+          /* create timeline */
+    var timeline = [];
+      
+    // pulling info re: mechanical turk hit
+      var urlvar = jsPsych.data.urlVariables();  
+      
+    
+    var preload = {
+        type: jsPsychPreload,
+        auto_preload: true,
+        video: [
+                'resources/1.mp4',
+                'resources/10.mp4',
+                'resources/11.mp4',
+                'resources/12.mp4',
+                'resources/2.mp4',
+                'resources/3.mp4',
+                'resources/4.mp4',
+                'resources/5.mp4',
+                'resources/6.mp4',
+                'resources/7.mp4',
+                'resources/8.mp4',
+                'resources/9.mp4'],
+        show_progress_bar: true,
+        message: "Loading experiment files...",
+        error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
+    }  
+    timeline.push(preload);
+    
+
+      
+    var faces = [{face:'resources/1.mp4'},
+                {face:'resources/10.mp4'},
+                {face:'resources/11.mp4'},
+                {face:'resources/12.mp4'},
+                {face:'resources/2.mp4'},
+                {face:'resources/3.mp4'},
+                {face:'resources/4.mp4'},
+                {face:'resources/5.mp4'},
+                {face:'resources/6.mp4'},
+                {face:'resources/7.mp4'},
+                {face:'resources/8.mp4'},
+                {face:'resources/9.mp4'}];
+      
+      //using this array instead of the named variable array above in order to work with custom functions
+      var faces_arr = ['resources/1.mp4',
+                        'resources/10.mp4',
+                        'resources/11.mp4',
+                        'resources/12.mp4',
+                        'resources/2.mp4',
+                        'resources/3.mp4',
+                        'resources/4.mp4',
+                        'resources/5.mp4',
+                        'resources/6.mp4',
+                        'resources/7.mp4',
+                        'resources/8.mp4',
+                        'resources/9.mp4'];
+      
+      // we decided to define validation triplets
+        var validation_triplets = [{head: 'resources/1.mp4',choice_1: 'resources/2.mp4',choice_2: 'resources/3.mp4'},
+            {head: 'resources/4.mp4',choice_1: 'resources/5.mp4',choice_2:'resources/6.mp4'}];
+
+      
+      
+      var check_triplets=[
+            {head: 'resources/1.mp4',choice_1: 'resources/2.mp4',choice_2: 'resources/1.mp4', correct_choice: 'j'},
+            {head: 'resources/4.mp4',choice_1: 'resources/4.mp4',choice_2:'resources/5.mp4', correct_choice: 'f'}];
+      
+   //to shuffle the array of button choices at the beginning of the experiment   
+    function shuffle(array) {
+        let currentIndex = array.length,  randomIndex;
+        // While there remain elements to shuffle.
+        while (currentIndex != 0) {
+        // Pick a remaining element.
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+        
+    var test_stimuli = [];
+    
+    // to get a random item from the array
+    function getRandomItems(arr) {
+        var temp_array = jsPsych.randomization.sampleWithoutReplacement(arr, 2);
+          arr = arr.filter(e => e !== temp_array[0]);
+          arr = arr.filter(e => e !== temp_array[1]);
+        return temp_array;
+    }
+      
+      
+    /* define welcome message trial */
+    var welcome = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "Welcome to the experiment. Press any key to begin."
+    };
+    timeline.push(welcome);
+      
+      // going fullscreen
+    timeline.push({
+      type: jsPsychFullscreen,
+      fullscreen_mode: true
+    });    
+         
+    /* define consent trail */
+    var consent = {
+        type: jsPsychImageButtonResponse,
+        stimulus: "kc_lab_consent_SONA.png",
+        choices: ["Consent & Continue"]
+    };
+    timeline.push(consent);
+      
+      
+          
+    // define testing instructions 
+    var instructions = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "<p>In each trial of this task, you will see three video clips of emotional expressions: one reference clip on top, and two choices beneath the reference clip." +
+        "</p><p><strong>For each trial, please <u>select the clip with the facial expression closest to the expression of the face in the reference clip</u>.</strong>"+
+          "<p>Click 'Continue' to begin the test.</p>",
+        choices: ["Continue"],
+      post_trial_gap: 2000
+    };
+    timeline.push(instructions);  
+      
+      // define fixation
+      var fixation = {
+          type: jsPsychHtmlKeyboardResponse,
+            stimulus: '+',
+            choices: "NO_KEYS",
+            trial_duration: 500
+        };
+      timeline.push(fixation);
+      
+      
+      var arr_pair = [];
+
+
+// define the trials!
+      var trial = {
+          type: jsPsychVideoKeyboardResponse,
+            stimulus: [jsPsych.timelineVariable('face')],    // IF YOU CHANGED THE OBJECT NAMES IN YOUR ARRAY ABOVE, CHANGE THEM HERE TO MATCH     
+             prompt: function(){
+                shuffle(faces_arr);
+                arr_pair = getRandomItems(faces_arr);
+                // Ensure that the choices and stimulus are NOT the same
+                while(arr_pair[0] == jsPsych.timelineVariable('face') || arr_pair[1] == jsPsych.timelineVariable('face')){
+                    arr_pair = getRandomItems(faces_arr);
+                }
+                // Construct HTML for the videos
+                var html = '<div style="display: flex; justify-content: center;">'; // Center the videos horizontally
+                html += '<video width="500" height="375" controls>';
+                html += '<source src="' + arr_pair[0] + '" type="video/mp4">';
+                html += 'Your browser does not support the video tag.';
+                html += '</video>';
+                html += '<video width="500" height="375" controls style="margin-left: 10px;">'; // Add margin between videos
+                html += '<source src="' + arr_pair[1] + '" type="video/mp4">';
+                html += 'Your browser does not support the video tag.';
+                html += '</video>';
+                html += '</div>';
+                html += '<br>Which is more similar in expression to the video on top? <br><strong>Press "f" for the video on the left, or "j" for the video on the right.';
+                return html;
+            },
+            height: 400,
+            width: 500,
+          controls: true,
+          choices: ['f', 'j'],
+            on_finish: function(data){
+                shuffle(faces_arr); // CHANGE THIS TO MATCH THE REGULAR ARRAY YOU SPECIFICIED ABOVE
+                data.choices = arr_pair;
+                n = 1;
+                var data_last1 = jsPsych.data.get().last(n);
+                lasttrialdata_rt = data_last1.select('rt').mean();
+                if (lasttrialdata_rt < 900){
+                      data.speedy = true;
+                    } else {
+                      data.speedy = false; 
+                }
+                data.validation = false;
+            }
+      };
+      
+      
+      // define the trials!
+      var validation_trial = {
+          type: jsPsychVideoKeyboardResponse,
+            stimulus: [jsPsych.timelineVariable('head')],    // IF YOU CHANGED THE OBJECT NAMES IN YOUR ARRAY ABOVE, CHANGE THEM HERE TO MATCH     
+             prompt: function(){
+                arr_pair = [jsPsych.timelineVariable('choice_1'), jsPsych.timelineVariable('choice_2')];
+                 
+                // Construct HTML for the videos
+                var html = '<div style="display: flex; justify-content: center;">'; // Center the videos horizontally
+                html += '<video width="500" height="375" controls>';
+                html += '<source src="' + arr_pair[0] + '" type="video/mp4">';
+                html += 'Your browser does not support the video tag.';
+                html += '</video>';
+                html += '<video width="500" height="375" controls style="margin-left: 10px;">'; // Add margin between videos
+                html += '<source src="' + arr_pair[1] + '" type="video/mp4">';
+                html += 'Your browser does not support the video tag.';
+                html += '</video>';
+                html += '</div>';
+                html += '<br>Which is more similar to the video on top? <br><strong>Press "f" for the video on the left. Press "j" for the video on the right.';
+                return html;
+            },
+            height: 400,
+            width: 500,
+            controls: true,
+            choices: ['f', 'j'],
+            on_finish: function(data){
+                shuffle(faces_arr); // CHANGE THIS TO MATCH THE REGULAR ARRAY YOU SPECIFICIED ABOVE
+                data.choices = arr_pair;
+                n = 1;
+                var data_last1 = jsPsych.data.get().last(n);
+                lasttrialdata_rt = data_last1.select('rt').mean();
+                if (lasttrialdata_rt < 900){
+                      data.speedy = true;
+                    } else {
+                      data.speedy = false; 
+                }
+                data.validation = false;
+            }
+      };
+      
+      
+        var check_trial = {
+          type: jsPsychVideoKeyboardResponse,
+            stimulus: [jsPsych.timelineVariable('head')],    // IF YOU CHANGED THE OBJECT NAMES IN YOUR ARRAY ABOVE, CHANGE THEM HERE TO MATCH     
+             prompt: function(){
+                arr_pair = [jsPsych.timelineVariable('choice_1'), jsPsych.timelineVariable('choice_2')];
+                // Construct HTML for the videos
+                var html = '<div style="display: flex; justify-content: center;">'; // Center the videos horizontally
+                html += '<video width="500" height="375" controls muted>';
+                html += '<source src="' + arr_pair[0] + '" type="video/mp4">';
+                html += 'Your browser does not support the video tag.';
+                html += '</video>';
+                html += '<video width="500" height="375" controls muted style="margin-left: 10px;">'; // Add margin between videos
+                html += '<source src="' + arr_pair[1] + '" type="video/mp4">';
+                html += 'Your browser does not support the video tag.';
+                html += '</video>';
+                html += '</div>';
+                html += '<br>Which is more similar to the video on top? <br><strong>Press "f" for the video on the left. Press "j" for the video on the right.';
+                return html;
+            },
+            height: 400,
+            width: 500,
+            controls: true,
+            choices: ['f', 'j'],
+            on_finish: function(data){
+              data.choices = arr_pair;
+              if (data.response == jsPsych.timelineVariable('correct_choice')){
+                  data.correct = true;
+                } else {
+                  data.correct = false; 
+              }
+                data.validation = true;
+          }
+      };
+      
+      
+      
+        
+        var if_trial_check = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: "<p><strong>Incorrect!</strong></p>That was an attention check. Please pay attention while completing this task.<p>Press 'y' to continue.</p>",
+            choices:["y"]
+        }
+
+        var if_node_check = {
+            timeline: [if_trial_check],
+            conditional_function: function(){
+                // get the data from the previous trial,
+                // and check which key was pressed
+                var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct;
+                if(last_trial_correct){
+                    return false; // the parameter value has to be returned from the function
+                } else {
+                    return true; // the parameter value has to be returned from the function
+                }
+            }
+        }
+        
+        var if_trial_speed = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: "<p><strong>You're going too fast.</strong><p>Please slow down and assess each triplet." +
+                  "<p>Press 'y' to continue.</p></p>",
+            choices: ["y"]
+        }
+
+        var if_node_speed = {
+            timeline: [if_trial_speed],
+            conditional_function: function(){
+                // get the data from the previous trial,
+                // and check which key was pressed
+                var last_trial_speed = jsPsych.data.get().last(1).values()[0].speedy;
+                if(last_trial_speed){
+                    return true; // the parameter value has to be returned from the function;
+                } else{
+                    return false;
+                }
+            }
+        }
+
+
+        // okay so this is to get a random set of elements...  
+        function getRandom(arr, n) {
+            var result = new Array(n),
+                len = arr.length,
+                taken = new Array(len);
+            if (n > len)
+                throw new RangeError("getRandom: more elements taken than available");
+            while (n--) {
+                var x = Math.floor(Math.random() * len);
+                result[n] = arr[x in taken ? taken[x] : x];
+                taken[x] = --len in taken ? taken[len] : len;
+            }
+            return result;
+        }
+
+        //actually grabbing them
+
+
+    var validation_procedure = {
+        timeline: [fixation, validation_trial, if_node_speed],
+        timeline_variables: validation_triplets,
+        sample :{
+            type: 'without-replacement',
+            size: 1 // CHANGE THIS if you want a different number of validation trials per block
+        }
+    };
+
+    var trial_procedure = {
+        timeline: [fixation, trial, if_node_speed],
+        timeline_variables: faces,
+        randomize_order: true,
+        sample: {
+            type: 'with-replacement',
+            size: 1 // CHANGE THIS if you want a different number of regular trials per block
+        }
+    };
+
+
+    var check_procedure = {
+        timeline: [fixation, check_trial, if_node_check],
+        timeline_variables: check_triplets,
+        sample: {
+            type: 'without-replacement',
+            size: 1 // CHANGE THIS if you want a different number of check trials per block
+        }
+    };
+
+
+    var block_procedure = {
+        timeline: [trial_procedure, check_procedure, validation_procedure],
+        randomize_order: true,
+        repetitions: 1 // CHANGE THIS if you want a different number of all trials
+    };
+
+    // total number of trials = (40*5) + (10*5) + (1*5) = 255 trials
+
+      
+    var quick_break = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "Nice job! Feel free to take a quick break, then click 'Continue' when you are ready proceed to the next round." +
+        "<p>Remember, your task is to <strong>select the face with the <u>facial expression</u> closest to the expression of the face on top.</strong>",
+        choices: ["Continue"]
+    };
+      
+      
+      timeline.push(block_procedure);
+      timeline.push(quick_break);
+      timeline.push(block_procedure);
+    
+
+
+    // survey time
+    var demographic_instructions = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: "<p>Awesome!<p>For this last part of the experiment, please provide us with information about yourself.</p> ",
+          choices: ["Continue"],
+          post_trial_gap: 1000
+        };
+    timeline.push(demographic_instructions);
+
+
+    var demographics = {
+        type: jsPsychSurveyMultiSelect,
+        questions: [
+          {prompt: "Which categories describe you? Select all that apply to you:", 
+            options: ["American Indian or Alaska Naive - For example, Navajo Nation, Mayan", 
+                      "Asian - For example, Chinese, Asian Indian",
+                      "Black or African American - For example, Jamaican, Ethiopian",
+                      "Hispanic or Latino - For example, Mexican or Mexican American, Puerto Rican, Salvadoran",
+                     "Middle Eastern or North African - For example, Lebanese, Iranian, Moroccan",
+                     "Native Hawaiian or Other Pacific Islander - For example, Somoan, Fijian",
+                     "White - For example, German, Irish",
+                     "Some other race, ethnicity, or origin",
+                     "I prefer not to answer"], 
+            horizontal: false,
+            required: true,
+            name: 'race_eth'}]
+    };
+    timeline.push(demographics);  
+
+
+      
+    var id_age = {
+      type: jsPsychSurveyText,
+      questions: [{prompt: "Please enter your age (in years):", rows: 1, columns: 6, name: "age", required: true}, 
+                  {prompt: "How do you currently describe your gender identity? Please specify.", rows: 1, columns: 60, name: "gender"},
+                  {prompt: "What is your ZIP code?", rows : 1, columns: 6, name: "zip"}
+                 ]
+    };
+    timeline.push(id_age);
+      
+      
+      
+   var goodbye = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: function(){
+        output = "Woohoo! You have finished the experiment. <br>";
+          if(urlvar.workerId.length > 7){
+              output = output + "<strong> Here is your secret code: " + secret_code + "</strong><br>";
+          }
+        output = output + "You may now close this screen. Goodbye!<br><br>";
+      return output;
+      },
+      choices: ["Complete Experiment"]    
+   };
+    timeline.push(goodbye);
+
+
+      // to save data using POST functions
+      // if you want to use SQL for the WID servers, you need to include the relevant code in a yaml and use that to post to the server instead!
+      
+    function saveData(name, data){
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'data_write.php'); // 'write_data.php' is the path to the php file described above.
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify({filename: name, filedata: data}));
+    }
+       
+      
+    jsPsych.run(timeline);
+
+
+
+  </script>
+  </html>
+
+<!--
+
+-->
