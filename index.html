@@ -35,12 +35,12 @@
         on_data_update: function(){
             jsPsych.data.addProperties({worker_id: urlvar.workerId});
             //saveData(file, jsPsych.data.get().csv());
-            save_data();
+            save_data;
         },
         on_finish: function(){
             jsPsych.data.addProperties({worker_id: urlvar.workerId});
             //saveData(file, jsPsych.data.get().csv());
-            save_data();
+            save_data;
 
         },
         max_load_time: 120000
@@ -476,7 +476,8 @@
     timeline.push(id_age);
       
       
-      
+  timeline.push(saveData);
+    
    var goodbye = {
       type: jsPsychHtmlButtonResponse,
       stimulus: function(){
