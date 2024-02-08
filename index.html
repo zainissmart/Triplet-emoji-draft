@@ -476,7 +476,7 @@
     timeline.push(id_age);
       
       
-  timeline.push(saveData);
+  timeline.push(save_data);
     
    var goodbye = {
       type: jsPsychHtmlButtonResponse,
@@ -492,17 +492,6 @@
    };
     timeline.push(goodbye);
 
-
-      // to save data using POST functions
-      // if you want to use SQL for the WID servers, you need to include the relevant code in a yaml and use that to post to the server instead!
-      
-    function saveData(name, data){
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', 'data_write.php'); // 'write_data.php' is the path to the php file described above.
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.send(JSON.stringify({filename: name, filedata: data}));
-    }
-       
       
     jsPsych.run(timeline);
 
